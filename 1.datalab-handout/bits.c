@@ -143,8 +143,7 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  
-  return x & ~y;
+  return ~(~(~x & y) & ~(x & ~y));
 }
 /* 
  * 返回最小二进制补码整数
@@ -158,6 +157,7 @@ int tmin(void) {
 }
 //2
 /*
+ * isTmax - 通过位运算计算是否是补码最大值。
  * isTmax - returns 1 if x is the maximum, two's complement number,
  *     and 0 otherwise 
  *   Legal ops: ! ~ & ^ | +
@@ -165,7 +165,12 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  int i = x + 1; // if x is Tmax(b0111,1111,1111,1111), x+1 is Tmin
+  x = x + i; // if x is Tmax, x + i -> b 1111,1111,1111,1111;
+  x = ~x;  // if x is Tmax, ~x -> b 0000,0000,0000,0000;
+  i=!i;//exclude x=0xffff...
+  x=x+i;//exclude x=0xffff...
+  return !x;
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
