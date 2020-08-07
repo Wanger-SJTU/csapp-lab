@@ -191,7 +191,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
 //3
 /* 
@@ -214,6 +214,8 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
+  x = !!x;
+  x = x << 31
   return 2;
 }
 /* 
@@ -224,7 +226,8 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  x = (~x + 1);
+  return !(((x + y) & (0x01 << 31)) >> 31);
 }
 //4
 /* 
