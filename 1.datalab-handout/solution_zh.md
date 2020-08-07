@@ -1,5 +1,5 @@
 
-1. bitXor - x^y using only ~ and & 
+1. bitXor - x^y using only ~ and & （与非实现异或）
 > Example: bitXor(4, 5) = 1
 
     Legal ops: ~ &
@@ -21,11 +21,13 @@ int tmin(void) {
   return 0x01 << 31;
 }
 ```
-3. isTmax - 通过位运算计算是否是补码最大值。
+3. isTmax - 通过位运算计算是否是补码最大值。（以4字节，如果是b0111 1111 1111 1111 返回1 否则返回0）
 >
     Legal ops: ! ~ & ^ | +
     Max ops: 10
     Rating: 1
+
+
 ```c
 int isTmax(int x) {
   return 2;
