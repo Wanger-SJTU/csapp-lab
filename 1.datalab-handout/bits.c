@@ -181,7 +181,9 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  int mask = 0xAA << 8 + 0xAA;
+  mask = mask << 16 + mask;
+  return !(x ^ mask);
 }
 /* 
  * negate - return -x 
@@ -257,7 +259,24 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int b16,b8,b4,b2,b1,b0;
+  int sign=x>>31;
+  x = (sign&~x)|(~sign&x);//如果x为正则不变，否则按位取反（这样好找最高位为1的，原来是最高位为0的，这样也将符号位去掉了）
+
+
+// 不断缩小范围
+  b16 = !!(x>>16)<<4;//高十六位是否有1
+  x = x>>b16;//如果有（至少需要16位），则将原数右移16位
+  b8 = !!(x>>8)<<3;//剩余位高8位是否有1
+  x = x>>b8;//如果有（至少需要16+8=24位），则右移8位
+  b4 = !!(x>>4)<<2;//同理
+  x = x>>b4;
+  b2 = !!(x>>2)<<1;
+  x = x>>b2;
+  b1 = !!(x>>1);
+  x = x>>b1;
+  b0 = x;
+  return b16+b8+b4+b2+b1+b0+1;//+1表示加上符号位
 }
 //float
 /* 
@@ -272,7 +291,13 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  int exp = (uf&0x7f800000)>>23;
+  int sign = uf&(1<<31);
+  if(exp==0) return uf<<1|sign;
+  if(exp==255) return uf;
+  exp++;
+  if(exp==255) return 0x7f800000|sign;
+  return (exp<<23)|(uf&0x807fffff);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -286,8 +311,29 @@ unsigned floatScale2(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
+/*
+首先考虑特殊情况：如果原浮点值为0则返回0；如果真实指数大于31（frac部分是大于等于1的，1<<31位会覆盖符号位），
+返回规定的溢出值0x80000000u；如果 [公式] （1右移x位,x>0，结果为0）则返回0。剩下的情况：首先把小数部分（23位）
+转化为整数（和23比较），然后判断是否溢出：如果和原符号相同则直接返回，否则如果结果为负（原来为正）则溢出
+返回越界指定值0x80000000u，否则原来为负，结果为正，则需要返回其补码（相反数）。
+C语言的浮点数强转为整数怎么转的？
+利用位级表示进行强转！
+*/
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  int s_    = uf>>31;
+  int exp_  = ((uf&0x7f800000)>>23)-127;
+  int frac_ = (uf&0x007fffff)|0x00800000;
+  if(!(uf&0x7fffffff)) return 0;
+
+  if(exp_ > 31) return 0x80000000;
+  if(exp_ < 0) return 0;
+
+  if(exp_ > 23) frac_ <<= (exp_-23);
+  else frac_ >>= (23-exp_);
+
+  if(!((frac_>>31)^s_)) return frac_;
+  else if(frac_>>31) return 0x80000000;
+  else return ~frac_+1;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -303,5 +349,9 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  int INF = 0xff<<23;
+  int exp = x + 127;
+  if(exp <= 0) return 0;
+  if(exp >= 255) return INF;
+  return exp << 23;
 }
