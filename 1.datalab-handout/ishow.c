@@ -1,6 +1,6 @@
 /* Display value of fixed point numbers */
 #include <stdlib.h>
-// #include <stdio.h>
+#include <stdio.h>
 
 /* Extract hex/decimal/or float value from string */
 static int get_num_val(char *sval, unsigned *valp) {

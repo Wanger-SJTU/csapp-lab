@@ -1,6 +1,6 @@
 /* Display structure of floating-point numbers */
 
-// #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 float strtof(const char *nptr, char **endptr);
 

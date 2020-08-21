@@ -173,6 +173,8 @@ int isTmax(int x) {
   return !x;
 }
 /* 
+ * 判断所有奇数位是否都为1，这里的奇数指的是位的阶级是2的几次幂。
+ * 重在思考转换规律，如何转换为对应的布尔值。
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
  *   where bits are numbered from 0 (least significant) to 31 (most significant)
  *   Examples allOddBits(0xFFFFFFFD) = 0, allOddBits(0xAAAAAAAA) = 1
@@ -181,9 +183,9 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  int mask = 0xAA << 8 + 0xAA;
-  mask = mask << 16 + mask;
-  return !(x ^ mask);
+  int mask = 0xAA+(0xAA<<8);
+  mask = mask + (mask<<16);
+  return !((mask & x) ^ mask);
 }
 /* 
  * negate - return -x 
@@ -205,11 +207,20 @@ int negate(int x) {
  *   Max ops: 15
  *   Rating: 3
  */
-int isAsciiDigit(int x) { 
-  int lower = ~0x30 + 1;
-  int upper = ~0x39 + 1;
+// int isAsciiDigit(int x) { 
+//   int lower = ~0x30 + 1;
+//   int upper = ~0x39 + 1;
+//   int sign = 0x01 << 31;
+//   return  ~((x + lower) & sign) && ((x + upper) & sign);
+// }
+
+int isAsciiDigit(int x) {
   int sign = 0x01 << 31;
-  return  ~((x + lower) & sign) && ((x + upper) & sign);
+  int upperBound = ~(sign | 0x39);
+  int lowerBound = ~0x30;
+  upperBound = sign & (upperBound + x) >> 31;
+  lowerBound = sign & (lowerBound + 1 + x) >> 31;
+  return !(upperBound|lowerBound);
 }
 /* 
  * conditional - same as x ? y : z 

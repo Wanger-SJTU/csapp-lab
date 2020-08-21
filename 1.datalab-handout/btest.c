@@ -13,7 +13,7 @@
  * 
  * Note: not 64-bit safe. Always compile with gcc -m32 option.
  */
-// #include <stdio.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
